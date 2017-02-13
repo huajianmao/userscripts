@@ -2,7 +2,7 @@
 // @name         LianjiaSaver
 // @namespace    http://hjmao.me/
 // @version      0.1
-// @description  To save lianjia brief info in local storage!
+// @description  To save moujia brief info in local storage!
 // @author       Huajian Mao
 // @include      http://hz.lianjia.com/ershoufang/*
 // @grant        none
@@ -10,14 +10,13 @@
 
 (function() {
     'use strict';
-
     var houses = localStorage.getItem('houses');
     if (houses === null || houses === undefined) {
         houses = {};
     } else {
         houses = JSON.parse(houses);
     }
-
+    
     var houseLis = document.querySelectorAll('li.clear');
     for (var house of houseLis) {
         var houseObj = {};
@@ -69,4 +68,21 @@
     }
 
     localStorage.setItem('houses', JSON.stringify(houses));
+
+
+    setTimeout(5000);
+    window.scrollTo(0, document.body.scrollHeight);
+
+    var pagenation = document.querySelector('.house-lst-page-box');
+    var pageData = JSON.parse(pagenation.getAttribute('page-data'));
+    var totalPage = pageData.totalPage;
+    var curPage = pageData.curPage;
+
+    if (curPage < totalPage) {
+        var links = pagenation.querySelectorAll('a');
+        var nextPageLink = links[links.length - 1];
+        if (nextPageLink.innerText === "下一页") {
+            nextPageLink.click();
+        }
+    }
 })();
