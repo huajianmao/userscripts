@@ -9,40 +9,55 @@
 // ==/UserScript==
 
 (function() {
-  'use strict';
+    'use strict';
 
-  var refreshIntervalId;
-  var numbers = new Set();
-  var totalPageNum = parseInt(document.querySelector('.totalPageNum').innerText);
+    function getNumbersFromLocalStorage() {
+        var numbers = localStorage.getItem('numbers');
 
-  function getNumbersInPage() {
-    var mainNum = document.querySelector('#mainNum');
-    var currPageNum = parseInt(document.querySelector('.currPageNum').innerText);
-    console.log("Going to get numbers in " + currPageNum);
-
-    var trs = mainNum.querySelectorAll('tr');
-    for (var tr of trs) {
-      var id = tr.getAttribute('id');
-      if (id !==null && id !== undefined) {
-        var fields = id.split('|');
-        if (fields.length === 6 && fields[1].length === 11) {
-          numbers.add(fields[1]);
+        if (numbers === null || numbers === undefined) {
+            numbers = [];
+        } else {
+            numbers = JSON.parse(numbers);
         }
-      }
+
+        return numbers;
     }
 
-    var gotoPageNum = currPageNum + 1;
-    if (gotoPageNum > totalPageNum) {
-      if (refreshIntervalId !== null && refreshIntervalId !== undefined) {
-        clearInterval(refreshIntervalId);
-      }
-    } else {
-      document.querySelector('#kkpager_btn_go_input').setAttribute('value', currPageNum + 1);
-      document.querySelector('#kkpager_btn_go').onclick();
+    var refreshIntervalId;
+
+    function getNumbersInPage() {
+        var numbers = getNumbersFromLocalStorage();
+
+        var mainNum = document.querySelector('#mainNum');
+
+        var totalPageNum = parseInt(document.querySelector('.totalPageNum').innerText);
+        var currPageNum = parseInt(document.querySelector('.currPageNum').innerText);
+        console.log("Going to get numbers in " + currPageNum);
+
+        var trs = mainNum.querySelectorAll('tr');
+        for (var tr of trs) {
+            var id = tr.getAttribute('id');
+            if (id !==null && id !== undefined) {
+                var fields = id.split('|');
+                if (fields.length === 6 && fields[1].length === 11) {
+                    numbers.push(fields[1]);
+                }
+            }
+        }
+
+        var gotoPageNum = currPageNum + 1;
+        if (gotoPageNum > totalPageNum) {
+            if (refreshIntervalId !== null && refreshIntervalId !== undefined) {
+                clearInterval(refreshIntervalId);
+            }
+        } else {
+            document.querySelector('#kkpager_btn_go_input').setAttribute('value', currPageNum + 1);
+            document.querySelector('#kkpager_btn_go').onclick();
+        }
+
+        localStorage.setItem('numbers', JSON.stringify(numbers));
+        console.log("Have fetched " + numbers.length + " numbers!");
     }
 
-    console.log("Have fetched " + numbers.size + " numbers!");
-  }
-
-  refreshIntervalId = setInterval(getNumbersInPage, 10000);
+    refreshIntervalId = setInterval(getNumbersInPage, 5000);
 })();
