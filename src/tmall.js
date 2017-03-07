@@ -106,7 +106,12 @@
                 console.log("Item has no sale number history!");
             } else {
                 console.log(thisSale.title);
+                var i = saleNums.length;
                 for (var saleNum of saleNums) {
+                    if (i > 5) {
+                        i--;
+                        continue;
+                    }
                     var dateStr = unixtime2formated(saleNum.date);
                     console.log("[" + dateStr + "] " + saleNum.num);
                 }
