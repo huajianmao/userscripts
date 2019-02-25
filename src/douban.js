@@ -23,6 +23,41 @@
         return books
     }
 
+    let filter = (books, value, count) => {
+        return Object.values(books).filter(book => book.star.count >= count && book.star.value >= value)
+    }
+
+    let getIntroByBook = async (book) => {
+        let BASE_URI = "https://book.douban.com/subject"
+        const request = BASE_URI + "/" + book.id
+
+        var el = document.createElement( 'html' )
+        const response = await fetch(request)
+        el.innerHTML = await response.text()
+        el.getElementsByClassName('related_info')[0].getElementsByClassName('indent')[0]
+        // FIXME: Bug here
+        const intro = [...el.getElementsByClassName('related_info')[0].getElementsByClassName('indent')[0].getElementsByClassName('intro')].slice(-1).pop()
+        const content = intro.innerHTML.replace(/\<\/p\>((?!\<p\>).)*\<p\>/g, '\n').replace(/\<\/p\>\s*/g, '').replace(/\s*\<p\>/g, '')
+        if (content) {
+            book.intro = content
+        }
+        return content
+    }
+
+    // filter(books, 8, 1500).map(book => getIntroByBook(book).then(result => console.log(result)))
+
+    let format = (books) => {
+        var mapped = Object.values(books)
+            .map(book => {
+                return [
+                    "## " + "[" + book.title + "](" + "https://book.douban.com/subject/" + book.id + ")",
+                    "【评分：" + book.star.value + " / 评论数：" + book.star.count + "】" + "【" + book.publisher + "】",
+                    book.intro.split('\n').map(line => ">  " + line).join('\n')
+                ].join("\n\n")
+            })
+        return mapped
+    }
+    
     let addBookToBooks = (book, books) => {
         if (!books[book.id]) {
             books[book.id] = book
